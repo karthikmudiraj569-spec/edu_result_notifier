@@ -1,19 +1,17 @@
-import streamlit as st
 import sqlite3
+import streamlit as st
 
-st.title("🎓 EduResult Notifier")
+# Connect to SQLite database (will create if it does not exist)
+conn = sqlite3.connect("students.db")
+cursor = conn.cursor()
 
-hall_ticket = st.text_input("Enter Hall Ticket Number")
-email = st.text_input("Enter Email")
-
-if st.button("Notify Me"):
-    conn = sqlite3.connect("students.db")
-    cursor = conn.cursor()
-    
-    cursor.execute("INSERT INTO students (hall_ticket, email) VALUES (?, ?)",
-                   (hall_ticket, email))
-    
-    conn.commit()
-    conn.close()
-    
-    st.success("You will be notified when results are released!")
+# Create table if it doesn't exist
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS students (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    hall_ticket TEXT,
+    email TEXT,
+    notified INTEGER DEFAULT 0
+)
+""")
+conn.commit()
